@@ -4,9 +4,9 @@
 " Last Change: Jan. 24, 2014
 
 " Only load this indent file when no other was loaded.
-"if exists("b:did_indent")
-  "finish
-"endif
+if exists("b:did_indent")
+ finish
+endif
 let b:did_indent = 1
 
 setlocal indentexpr=GetRimlIndent()
@@ -15,10 +15,9 @@ setlocal indentkeys+==end,=else,=catch,=finally,0\\
 let b:undo_indent = "setl indentkeys< indentexpr<"
 
 " Only define the function once.
-"if exists("*GetRimlIndent")
-  "finish
-"endif
-echo "riml indent"
+if exists("*GetRimlIndent")
+ finish
+endif
 let s:keepcpo= &cpo
 set cpo&vim
 

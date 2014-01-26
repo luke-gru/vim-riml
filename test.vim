@@ -1,2 +1,0 @@
-"exec "omg"
-"exec "omg"

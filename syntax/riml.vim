@@ -5,9 +5,9 @@
 " Version:        0.0.1
 
 " Quit when a syntax file was already loaded
-"if exists("b:current_syntax") && b:current_syntax == "riml"
-  "finish
-"endif
+if exists("b:current_syntax") && b:current_syntax == "riml"
+ finish
+endif
 
 " Include vim.vim for rimlExLiteral
 syn include @rimlVimEmbed syntax/vim.vim
@@ -16,9 +16,17 @@ syn keyword rimlKeyword if else elseif while for in return is isnot finish break
 syn keyword rimlKeyword throw try catch finally
 syn keyword rimlKeyword endfunction endif endwhile endfor endtry end
 syn keyword rimlKeyword super unless until new
-syn match   rimlKeyword "^\s*\<\(function\|def[m]\?\)!\?\>"
 syn match   rimlKeyword "\<call\>"
 syn keyword rimlBool true false
+
+" Functions:
+syn region rimlFuncDeclaration start="^\s*\<\(function\|defm\?\)!\?\>" end="$" oneline contains=rimlFuncKey,rimlFuncName,rimlOperParen,rimlFuncKeyword keepend
+syn match rimlFuncKey "\<\(function\|defm\?\)!\?\>" contained containedin=rimFuncDeclaration nextgroup=rimlFuncSID,rimlFuncScopeModifier,rimlFuncName skipwhite
+syn match rimlFuncName "\<\h[[:alpha:]#]*\ze\((\|\s*$\)" contained containedin=rimlFuncDeclaration nextgroup=rimlFuncKeword
+" keywords like 'abort,range,dict' in function declaration
+syn match rimlFuncKeyword "\s\+\zs\(abort\|range\|dict\)\s*$" contained containedin=rimFuncDeclaration
+syn match rimlFuncScopeModifier "[bwglsavn]:" nextgroup=rimlFuncName contained containedin=rimlFuncDeclaration
+syn match rimlFuncSID "<[Ss][Ii][Dd]>" nextgroup=rimlFuncScopeModifier,rimlFuncName contained containedin=rimlFuncDeclaration
 
 " functions keywords
 syn keyword rimlBuiltinFunction abs acos add append argc argidx argv argv asin atan atan2 browse browsedir bufexists buflisted bufloaded bufname bufnr bufwinnr
@@ -48,20 +56,19 @@ syn match rimlNumber "-\d\+\([lL]\|\.\d\+\)\="
 syn match rimlNumber "\<0[xX]\x\+"
 syn match rimlNumber "#\x\{6}"
 
-syn match rimlVar "\<[bwglsavn]:\K\k*\>"
-syn match rimlVar contained "\<\K\k*\>"
-syn match rimlFuncVar contained "a:\(\K\k*\|\d\+\)"
-syn match rimlFBVar contained "\<[bwglsavn]:\K\k*\>"
+syn match rimlVar "\<[bwglsavn]:\h\w*\>"
+syn match rimlVar contained "\<\([bwglsavn]:\)\?\h\w*\>" containedin=rimlLet
+syn match rimlVar "a:\d\{1,3}"
 
-syn keyword rimlLet let unlet skipwhite nextgroup=rimlVar,rimlFuncVar
+syn keyword rimlLet let unlet skipwhite nextgroup=rimlVar
 
 " Operators:
 " =========
-syn cluster rimlOperGroup contains=rimlFunc,rimlFuncVar,rimlOper,rimlOperParen,rimlNumber,rimlString,rimlRegister,rimlContinue,rimlBuiltinFunction
+syn cluster rimlOperGroup contains=rimlFunc,rimlOper,rimlOperParen,rimlNumber,rimlString,rimlRegister,rimlContinue,rimlBuiltinFunction
 syn match rimlOper "\(===\?\|!=\|>=\|<=\|=\~\|!\~\|>\|<\|=\)[?#]\{0,2}" skipwhite nextgroup=rimlString
 syn match rimlOper "||\|&&\|[-+.]" skipwhite nextgroup=rimlString
 syn region rimlOperParen oneline matchgroup=rimlParenSep start="(" end=")" contains=@rimlOperGroup
-syn region rimlOperParen oneline matchgroup=rimlSep start="{" end="}" contains=@rimlOperGroup nextgroup=rimlVar,rimlFuncVar
+syn region rimlOperParen oneline matchgroup=rimlSep start="{" end="}" contains=@rimlOperGroup nextgroup=rimlVar
 
 " Note: this is a hack to prevent keywords being highlighted when dictionary keys
 syn match rimlKeywordDict "\%(\%(\.\@<!\.\)\)\_s*\%(function\|if\|else\|elseif\|while\|for\|in\|return\|is\|isnot\)\>"   transparent contains=NONE
@@ -124,7 +131,7 @@ hi link rimlSep Delimiter
 hi link rimlVar Identifier
 hi link rimlFuncSID Special
 hi link rimlFuncKey Keyword
+hi link rimlFuncScopeModifier Special
 hi link rimlContinue Special
-"highlight link rimlFunction Function
 
 let b:current_syntax = "riml"
